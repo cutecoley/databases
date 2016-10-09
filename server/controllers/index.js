@@ -3,9 +3,10 @@ var models = require('../models');
 module.exports = {
   messages: {
     get: function (req, res) {
-      models.messages.get().then(function(results) {
+      console.log(res);
+      models.messages.get(function(results) {
         console.log(results);
-        console.log("res:  ", res);
+        res.json(results);
         //res.end(results);
         //return results;
       })

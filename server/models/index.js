@@ -1,12 +1,12 @@
 var db = require('../db');
-db.dbConnection.connect();
+
 
 module.exports = {
   messages: {
-    get: function () {
+    get: function (callback) {
       var queryString = 'SELECT text FROM messages;'
       db.dbConnection.query(queryString, function(err, results) {
-        return results;
+        callback(results);
       });
     }, // a function which produces all the messages
     post: function () {} // a function which can be used to insert a message into the database
