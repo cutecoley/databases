@@ -15,11 +15,34 @@ module.exports = {
       });
     },
     post: function (params, callback) {
-      // create a message for a user id based on the given username
-      var queryStr = 'insert into messages(text, user_id, room_name) \
-                      value (?, (select user_id from users where user_name = ? limit 1), ?)';
-      db.query(queryStr, params, function(err, results) {
-        callback(err, results);
+      var queryString = 'INSERT INTO messages(user_id, text, room_name) VALUES(?, ?, ?)';
+
+      db.query('SELECT user_id FROM users WHERE user_name = ?', [params.username], function(err, rows, field) {
+        var userId;
+
+        if (err) {
+          console.log('error from models messages post', err);
+
+        } else if (rows.length === 0) {
+
+          module.exports.users.post(params, function(err, dataPacket) {
+            console.log('new data check: ', dataPacket);
+            userId = dataPacket.insertId;
+
+            db.query(queryString, [userId, params.text, params.roomname], function(err, rows, field) {
+              callback(err, rows);
+            });
+
+          });
+        } else {
+          userId = rows[0].user_id;
+
+          db.query(queryString, [userId, params.text, params.roomname], function(err, rows, field) {
+            if (err)
+              console.log('error from models messages post', err);
+            callback(err, rows);
+          });
+        }
       });
     }
   },
